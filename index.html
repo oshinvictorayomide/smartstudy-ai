@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SmartStudy AI</title>
+<style>
+
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
+
+/* ===== HERO ===== */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.hero h1 {
+  font-size: 42px;
+}
+
+.hero h2 {
+  font-size: 28px;
+  color: #4da6ff;
+}
+
+.hero button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  border-radius: 25px;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+/* ===== APP ===== */
+.app {
+  width: 400px;
+  margin: 40px auto;
+  background: rgba(30,40,60,0.95);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.message {
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+  max-width: 75%;
+}
+
+.user {
+  background: #4CAF50;
+  margin-left: auto;
+}
+
+.bot {
+  background: #3a4a6a;
+}
+
+.controls {
+  display: flex;
+  padding: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  margin-left: 5px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.mic {
+  background: red;
+}
+
+/* ===== QUIZ ===== */
+.quiz {
+  text-align: center;
+  padding: 40px;
+}
+
+.quiz button {
+  margin: 10px;
+}
+
+/* ===== ANIMATION ===== */
+.typing {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Next Level AI Tutoring</h1>
+  <h2>For Lifelong Learners</h2>
+  <p>Learn with voice-powered AI and interactive quizzes</p>
+  <button onclick="scrollToChat()">Start Learning →</button>
+</section>
+
+<!-- CHAT -->
+<div class="app" id="chatSection">
+
+  <div class="header">
+    <h2>🤖 SmartStudy AI</h2>
+  </div>
+
+  <div id="chat" class="chat-box"></div>
+
+  <div class="controls">
+    <input id="input" placeholder="Ask anything...">
+    <button onclick="sendMessage()">Send</button>
+    <button class="mic" onclick="startListening()">🎤</button>
+  </div>
+
+</div>
+
+<!-- QUIZ -->
+<section class="quiz">
+  <h2>Quick Quiz</h2>
+  <p id="question"></p>
+  <div id="answers"></div>
+  <p id="result"></p>
+  <p id="score"></p>
+</section>
+
+<script>
+
+/* ===== CHAT SYSTEM ===== */
+const chat = document.getElementById("chat");
+
+function addMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = "message " + sender;
+  div.innerText = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function sendMessage() {
+  const input = document.getElementById("input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  input.value = "";
+
+  const loading = addMessage("AI is thinking...", "bot typing");
+
+  setTimeout(() => {
+    const reply = smartAI(text);
+    loading.remove();
+    addMessage(reply, "bot");
+    speak(reply);
+  }, 700);
+}
+
+/* ===== VOICE ===== */
+function startListening() {
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.start();
+
+  recognition.onresult = function(e) {
+    const text = e.results[0][0].transcript;
+    addMessage(text, "user");
+
+    const loading = addMessage("Listening...", "bot typing");
+
+    setTimeout(() => {
+      const reply = smartAI(text);
+      loading.remove();
+      addMessage(reply, "bot");
+      speak(reply);
+    }, 700);
+  };
+}
+
+/* ===== AI ===== */
+function smartAI(input) {
+  let text = input.toLowerCase();
+
+  if (text.includes("president") && text.includes("nigeria"))
+    return "The president of Nigeria is Bola Ahmed Tinubu.";
+
+  if (text.includes("capital") && text.includes("nigeria"))
+    return "The capital of Nigeria is Abuja.";
+
+  if (text.includes("photosynthesis"))
+    return "Plants use sunlight to make food.";
+
+  if (text.match(/\d+/)) {
+    try { return "Answer: " + eval(text); }
+    catch { return "Let me guide you step by step."; }
+  }
+
+  if (text.startsWith("what is"))
+    return "It is an important concept explained simply for better understanding.";
+
+  return "That's a great question. Let me explain: " + input;
+}
+
+/* ===== SPEAK ===== */
+function speak(text) {
+  const speech = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(speech);
+}
+
+/* ===== SCROLL ===== */
+function scrollToChat() {
+  document.getElementById("chatSection").scrollIntoView({behavior:"smooth"});
+}
+
+/* ===== QUIZ SYSTEM ===== */
+const quizData = [
+  {
+    question: "Capital of Nigeria?",
+    options: ["Lagos","Abuja","Kano"],
+    answer: "Abuja"
+  },
+  {
+    question: "2 + 2 = ?",
+    options: ["3","4","5"],
+    answer: "4"
+  }
+];
+
+let current = 0;
+let score = 0;
+
+function loadQuiz() {
+  document.getElementById("question").innerText = quizData[current].question;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  quizData[current].options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(opt);
+    answersDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(ans) {
+  if (ans === quizData[current].answer) {
+    score++;
+    document.getElementById("result").innerText = "Correct!";
+  } else {
+    document.getElementById("result").innerText = "Wrong!";
+  }
+
+  current++;
+
+  if (current < quizData.length) {
+    loadQuiz();
+  } else {
+    document.getElementById("score").innerText = "Score: " + score;
+  }
+}
+
+loadQuiz();
+
+</script>
+
+</body>
+</html>
